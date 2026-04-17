@@ -3,7 +3,7 @@
 # All mechanical work in one script. Claude only needs to choose execution mode and report results.
 #
 # Usage:
-#   run-review.sh <plan-file-path>
+#   run-review.sh [--model <model>] [--effort <level>] <plan-file-path>
 #
 # Output (JSON to stdout):
 #   { "plan_title": "...", "review_file": "...", "round": N, "codex_status": "ok|fallback", ... }
@@ -15,7 +15,20 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PLAN_FILE="${1:?Usage: run-review.sh <plan-file-path>}"
+
+# --- Parse optional flags ---
+CODEX_MODEL=""
+CODEX_EFFORT=""
+
+while [[ $# -gt 1 ]]; do
+  case "$1" in
+    --model)  CODEX_MODEL="$2"; shift 2 ;;
+    --effort) CODEX_EFFORT="$2"; shift 2 ;;
+    *) break ;;
+  esac
+done
+
+PLAN_FILE="${1:?Usage: run-review.sh [--model <model>] [--effort <level>] <plan-file-path>}"
 
 # --- Step 1: Validate plan file ---
 
@@ -197,29 +210,34 @@ PROMPT_EOF
 
 # --- Step 5: Invoke Codex ---
 
-RESUME_FLAG=""
-if [[ "$IS_NEW" == "false" ]]; then
-  RESUME_FLAG="--resume-last"
-fi
-
-# Find codex-companion
-CODEX_COMPANION="${CODEX_COMPANION:-$(find "$HOME/.claude/plugins/cache/openai-codex" -name 'codex-companion.mjs' -print -quit 2>/dev/null || true)}"
+CODEX_MODEL_FLAG=""
+CODEX_EFFORT_FLAG=""
+[[ -n "$CODEX_MODEL" ]]  && CODEX_MODEL_FLAG="-m $CODEX_MODEL"
+[[ -n "$CODEX_EFFORT" ]] && CODEX_EFFORT_FLAG="-c model_reasoning_effort=\"$CODEX_EFFORT\""
 
 CODEX_STATUS="ok"
-if [[ -n "$CODEX_COMPANION" ]]; then
-  node "$CODEX_COMPANION" task --write $RESUME_FLAG --prompt-file "$PROMPT_FILE"
+CODEX_ERROR=""
+if command -v codex &>/dev/null; then
+  # stdout suppressed: review is written to $REVIEW_FILE by Codex,
+  # Claude only needs the metadata line below. stderr captured for error reporting.
+  CODEX_ERROR=$(codex exec $CODEX_MODEL_FLAG $CODEX_EFFORT_FLAG --full-auto --skip-git-repo-check < "$PROMPT_FILE" 2>&1 >/dev/null) || CODEX_STATUS="error"
 else
   CODEX_STATUS="fallback"
-  echo "--- CODEX_NOT_FOUND ---"
-  echo "Codex plugin not installed. Review prompt saved at: $PROMPT_FILE"
-  echo "You can:"
-  echo "  1. Install codex: claude plugins add openai/codex-plugin-cc"
-  echo "  2. Or copy the prompt below and paste it to Codex manually:"
-  echo ""
-  cat "$PROMPT_FILE"
+  CODEX_ERROR="Codex CLI not found in PATH"
+fi
+
+# On error or missing CLI, fall back: prompt file is preserved for manual use.
+# Don't cat the prompt — it's already saved at $PROMPT_FILE and the path is
+# included in the metadata, so Claude can inform the user without consuming tokens.
+if [[ "$CODEX_STATUS" != "ok" ]]; then
+  echo "--- CODEX_FALLBACK ---"
+  [[ -n "$CODEX_ERROR" ]] && echo "Error: $CODEX_ERROR"
+  echo "Review prompt saved at: $PROMPT_FILE"
 fi
 
 # --- Output metadata for Claude ---
+# Escape error message for JSON
+CODEX_ERROR_JSON=$(printf '%s' "$CODEX_ERROR" | head -c 500 | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()), end="")' 2>/dev/null || echo '""')
 echo ""
 echo "--- REVIEW_METADATA ---"
-echo "{\"plan_title\":\"$PLAN_TITLE\",\"plan_file\":\"$PLAN_FILE\",\"review_file\":\"$REVIEW_FILE\",\"round\":$ROUND,\"is_new\":$IS_NEW,\"codex_status\":\"$CODEX_STATUS\",\"prompt_file\":\"$PROMPT_FILE\"}"
+echo "{\"plan_title\":\"$PLAN_TITLE\",\"plan_file\":\"$PLAN_FILE\",\"review_file\":\"$REVIEW_FILE\",\"round\":$ROUND,\"is_new\":$IS_NEW,\"codex_status\":\"$CODEX_STATUS\",\"codex_error\":$CODEX_ERROR_JSON,\"prompt_file\":\"$PROMPT_FILE\"}"

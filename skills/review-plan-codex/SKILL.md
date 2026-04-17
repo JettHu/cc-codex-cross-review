@@ -5,7 +5,7 @@ metadata:
   author: JettHu
   version: "0.1.0"
 disable-model-invocation: true
-argument-hint: "[--wait|--background] <plan-file-path>"
+argument-hint: "[--wait|--background] [--model <model>] [--effort <level>] <plan-file-path>"
 allowed-tools: Read Bash(${CLAUDE_SKILL_DIR}/*) AskUserQuestion
 ---
 
@@ -13,7 +13,7 @@ allowed-tools: Read Bash(${CLAUDE_SKILL_DIR}/*) AskUserQuestion
 
 ### Step 1: Parse arguments
 
-Extract optional flags (`--wait`, `--background`) and the plan file path from `$ARGUMENTS`.
+Extract optional flags (`--wait`, `--background`, `--model <model>`, `--effort <level>`) and the plan file path from `$ARGUMENTS`.
 
 ### Step 2: Choose execution mode
 
@@ -25,17 +25,17 @@ Extract optional flags (`--wait`, `--background`) and the plan file path from `$
 
 ### Step 3: Run review
 
-Everything — file validation, review file creation, prompt rendering, round counting, session reuse, Codex invocation, and fallback — is handled by a single script:
+Everything — file validation, review file creation, prompt rendering, round counting, session reuse, Codex invocation, and fallback — is handled by a single script. Pass `--model` and `--effort` flags through if the user specified them.
 
 **Foreground**:
 ```bash
-${CLAUDE_SKILL_DIR}/run-review.sh <plan-file-path>
+${CLAUDE_SKILL_DIR}/run-review.sh [--model <model>] [--effort <level>] <plan-file-path>
 ```
 
 **Background**:
 ```typescript
 Bash({
-  command: `${CLAUDE_SKILL_DIR}/run-review.sh <plan-file-path>`,
+  command: `${CLAUDE_SKILL_DIR}/run-review.sh [--model <model>] [--effort <level>] <plan-file-path>`,
   description: "Codex plan review",
   run_in_background: true
 })
