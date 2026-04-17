@@ -1,0 +1,8 @@
+{
+  "name": "x-review",
+  "version": "0.1.0",
+  "description": "Cross-model plan review: Claude Code orchestrates, Codex reviews critically. Multi-round with session reuse.",
+  "author": {
+    "name": "JettHu"
+  }
+}
