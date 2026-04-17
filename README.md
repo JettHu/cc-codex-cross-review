@@ -2,6 +2,8 @@
 
 Cross-model plan review skills for coding agents. The "x" stands for cross — your coding agent orchestrates, another model reviews critically, forming an adversarial feedback loop.
 
+With [codex-plugin-cc](https://github.com/openai/codex-plugin-cc) installed, reviews are automatically delegated to Codex. Without it, the review prompt is printed for manual use with any LLM.
+
 ## What it does
 
 Two slash commands for a multi-round plan review workflow:
