@@ -30,7 +30,12 @@ Clean up after review: `rm -rf docs/planning/reviews/`
 ## Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- [Codex plugin](https://github.com/openai/codex-plugin-cc) (optional — falls back to manual prompt copy if not installed)
+- [Codex plugin](https://github.com/openai/codex-plugin-cc) — recommended for full automation. Install it with:
+  ```bash
+  claude plugins marketplace add openai/codex-plugin-cc
+  claude plugins install codex
+  ```
+  **Without Codex plugin**: the review prompt will be printed to terminal instead. You can manually copy it into [Codex CLI](https://github.com/openai/codex), ChatGPT, or any other LLM for review.
 
 ## Install
 
