@@ -1,6 +1,9 @@
 ---
 name: review-plan-codex
 description: Prepare a review tracking file and delegate plan review to Codex for critical independent assessment
+metadata:
+  author: JettHu
+  version: "0.1.0"
 disable-model-invocation: true
 argument-hint: "[--wait|--background] <plan-file-path>"
 allowed-tools: Read Bash(${CLAUDE_SKILL_DIR}/*) AskUserQuestion

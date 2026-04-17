@@ -1,6 +1,9 @@
 ---
 name: apply-review-codex
 description: Apply Codex review feedback — evaluate each issue and revise the plan accordingly
+metadata:
+  author: JettHu
+  version: "0.1.0"
 disable-model-invocation: true
 argument-hint: "<plan-file-path>"
 allowed-tools: Read Edit Bash(${CLAUDE_SKILL_DIR}/*)

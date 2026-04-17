@@ -110,7 +110,7 @@ fi
 
 cat > "$PROMPT_FILE" << PROMPT_EOF
 <task>
-Read the project's CLAUDE.md files first to understand the tech stack and conventions.
+Read the project's CLAUDE.md and/or AGENTS.md files first to understand the tech stack and conventions.
 Then read the plan file at $PLAN_FILE and review it critically as an independent third-party reviewer.
 This is review round $ROUND.
 </task>
@@ -152,7 +152,7 @@ If the plan is genuinely solid, report fewer issues and say so directly.
 </calibration_rules>
 
 <grounding_rules>
-Every finding must be defensible from the plan content, the project's CLAUDE.md, or your tool outputs.
+Every finding must be defensible from the plan content, the project's CLAUDE.md / AGENTS.md, or your tool outputs.
 Do not invent requirements, constraints, or failure modes that are not supported by the provided context.
 If a concern depends on an assumption, state that explicitly and keep the severity honest.
 </grounding_rules>

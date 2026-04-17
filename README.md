@@ -1,6 +1,6 @@
 # x-review
 
-Cross-model plan review plugin for Claude Code. The "x" stands for cross — Claude Code orchestrates, Codex reviews critically, forming an adversarial feedback loop.
+Cross-model plan review skills for coding agents. The "x" stands for cross — your coding agent orchestrates, another model reviews critically, forming an adversarial feedback loop.
 
 ## What it does
 
@@ -29,8 +29,8 @@ Clean up after review: `rm -rf docs/planning/reviews/`
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- [Codex plugin](https://github.com/openai/codex-plugin-cc) — recommended for full automation. Install it with:
+- A coding agent that supports skills (Claude Code, Cursor, OpenCode, etc.)
+- [Codex plugin](https://github.com/openai/codex-plugin-cc) — recommended for full automation in Claude Code. Install it with:
   ```bash
   claude plugins marketplace add openai/codex-plugin-cc
   claude plugins install codex
@@ -38,6 +38,8 @@ Clean up after review: `rm -rf docs/planning/reviews/`
   **Without Codex plugin**: the review prompt will be printed to terminal instead. You can manually copy it into [Codex CLI](https://github.com/openai/codex), ChatGPT, or any other LLM for review.
 
 ## Install
+
+### Claude Code (recommended)
 
 ```bash
 # Add the marketplace
@@ -47,10 +49,19 @@ claude plugins marketplace add JettHu/jetthu-cc-plugins
 claude plugins install x-review
 ```
 
-Or test locally during development:
+### Other agents
+
+Install as a skill via [npx skills](https://github.com/vercel-labs/skills):
 
 ```bash
-claude --plugin-dir ./path/to/cc-codex-cross-review
+# Interactive — auto-detects your installed agents
+npx skills add JettHu/cc-codex-cross-review
+
+# Global install
+npx skills add JettHu/cc-codex-cross-review -g
+
+# Install to specific agents
+npx skills add JettHu/cc-codex-cross-review -a cursor -a opencode
 ```
 
 ## Options
@@ -76,4 +87,4 @@ claude --plugin-dir ./path/to/cc-codex-cross-review
 2. **Multi-round session reuse**: Round 2+ uses `--resume-last` to reuse the Codex thread, improving KV cache hit rate and reducing token cost.
 3. **Decision persistence**: `apply-review-codex` writes accept/reject decisions back to the review file. In the next round, `run-review.sh` extracts these decisions and embeds them in the prompt — so Codex knows what was rejected and won't re-raise the same issues.
 4. **Graceful fallback**: If Codex is not installed, the rendered prompt is output for manual copy-paste.
-5. **Minimal Claude overhead**: Claude only chooses execution mode and reports results. All file operations and prompt rendering are handled by shell scripts.
+5. **Minimal agent overhead**: The orchestrating agent only chooses execution mode and reports results. All file operations and prompt rendering are handled by shell scripts.
