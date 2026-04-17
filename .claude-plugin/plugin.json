@@ -1,0 +1,8 @@
+{
+  "name": "plan-review-codex",
+  "version": "0.1.0",
+  "description": "Delegate plan document reviews to Codex and apply feedback iteratively. Multi-round review with session reuse.",
+  "author": {
+    "name": "jetthu"
+  }
+}
