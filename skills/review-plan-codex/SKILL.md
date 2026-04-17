@@ -29,13 +29,13 @@ Everything — file validation, review file creation, prompt rendering, round co
 
 **Foreground**:
 ```bash
-"${CLAUDE_SKILL_DIR}/run-review.sh" "<plan-file-path>"
+${CLAUDE_SKILL_DIR}/run-review.sh <plan-file-path>
 ```
 
 **Background**:
 ```typescript
 Bash({
-  command: `"${CLAUDE_SKILL_DIR}/run-review.sh" "<plan-file-path>"`,
+  command: `${CLAUDE_SKILL_DIR}/run-review.sh <plan-file-path>`,
   description: "Codex plan review",
   run_in_background: true
 })

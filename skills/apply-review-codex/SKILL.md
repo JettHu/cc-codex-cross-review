@@ -19,7 +19,7 @@ Derive the review file path from `$ARGUMENTS`:
 Run the prep script to get only the latest round (avoids reading the full review history):
 
 ```bash
-"${CLAUDE_SKILL_DIR}/extract-latest-round.sh" "<review-file-path>"
+${CLAUDE_SKILL_DIR}/extract-latest-round.sh <review-file-path>
 ```
 
 Parse the output: the review round content is above `--- ROUND_METADATA ---`, and the metadata JSON is below it.
